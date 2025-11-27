@@ -1,0 +1,37 @@
+# Unreal Engine
+DerivedDataCache/
+Binaries/
+Build/
+Saved/
+Intermediate/
+Script/
+*.pdb
+*.pdb.*
+*.opendb
+*.obj
+*.cache
+*.db
+
+# Visual Studio / VSCode
+.vs/
+*.sln
+*.vcxproj*
+*.VC.db*
+.vscode/
+*.code-workspace
+
+# Rider
+.idea/
+.rider/
+
+# UE & VS Caches / Generated Files
+*.log
+*.tmp
+*.ipch
+*.ilk
+*.tlog
+
+# Paragon assets (HUGE -> do NOT track)
+Content/ParagonMinions/
+Content/ParagonBoris/
+Content/Paragon*/

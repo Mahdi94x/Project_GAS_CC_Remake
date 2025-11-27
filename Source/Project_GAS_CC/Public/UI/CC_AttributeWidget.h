@@ -1,0 +1,29 @@
+// Copyrights to Mahdi94x based on Course Make exciting multiplayer and single player games with the Gameplay Ability System in UE5 By Stephen Ulibarri
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "AbilitySystem/CC_AttributeSet.h"
+#include "Blueprint/UserWidget.h"
+#include "CC_AttributeWidget.generated.h"
+
+UCLASS()
+class PROJECT_GAS_CC_API UCC_AttributeWidget : public UUserWidget
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Crash|Attributes")
+	FGameplayAttribute Attribute;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Crash|Attributes")
+	FGameplayAttribute MaxAttribute;
+	
+	void OnAttributeChange(const TTuple<FGameplayAttribute, FGameplayAttribute>& Pair , UCC_AttributeSet* AttributeSet);
+	bool MatchesAttributes(const TTuple<FGameplayAttribute, FGameplayAttribute>& Pair) const;
+	
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Attribute Change"))
+	void BP_OnAttributeChange(float NewValue, float NewMaxValue);
+	
+	
+};
