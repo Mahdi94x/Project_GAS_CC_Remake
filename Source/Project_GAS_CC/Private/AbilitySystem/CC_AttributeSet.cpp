@@ -1,6 +1,9 @@
 // Copyrights to Mahdi94x based on Course Make exciting multiplayer and single player games with the Gameplay Ability System in UE5 By Stephen Ulibarri
 
 #include "AbilitySystem/CC_AttributeSet.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayEffectExtension.h"
+#include "GameplayTags/CCTags.h"
 #include "Net/UnrealNetwork.h"
 
 void UCC_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -15,13 +18,23 @@ void UCC_AttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME(ThisClass, bAttributeInitialized);
 }
 
-void UCC_AttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+void UCC_AttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
+	
 	if (!bAttributeInitialized)
 	{
 		bAttributeInitialized = true;
 		OnAttributeInitialized.Broadcast();
+	}
+	
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute() && GetHealth() <= 0.f)
+	{
+		FGameplayEventData Payload;
+		Payload.Instigator = Data.Target.GetAvatarActor(); // who received the hit "enemy"
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor
+			(/*AActor* who cause the damage "Player"*/ Data.EffectSpec.GetEffectContext().GetInstigator(),CCTags::Events::KillScored, Payload);
+		
 	}
 }
 

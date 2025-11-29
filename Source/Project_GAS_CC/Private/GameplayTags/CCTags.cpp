@@ -16,6 +16,8 @@ namespace CCTags
 	
 	namespace Events
 	{
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(KillScored,"CCTags.Events.KillScored", "Tag for KillScored event");
+		
 		namespace Enemy
 		{
 			UE_DEFINE_GAMEPLAY_TAG_COMMENT(HitReact,"CCTags.Events.Enemy.HitReact", "Tag for the enemy hit react event");
