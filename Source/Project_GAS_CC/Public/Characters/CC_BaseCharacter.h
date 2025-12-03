@@ -12,6 +12,11 @@ class UGameplayEffect;
 class UAttributeSet;
 class UGameplayAbility;
 
+namespace CrashTags
+{
+	extern PROJECT_GAS_CC_API const FName Player;
+}
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FASCInitialized, UAbilitySystemComponent*, ASC, UAttributeSet*, AS);
 
 UCLASS(Abstract)

@@ -1,6 +1,8 @@
 // Copyrights to Mahdi94x based on Course Make exciting multiplayer and single player games with the Gameplay Ability System in UE5 By Stephen Ulibarri
 
 #include "Utils/CC_BlueprintLibrary.h"
+#include "Characters/CC_BaseCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 EHitDirection UCC_BlueprintLibrary::GetHitDirection(const FVector& TargetForward, const FVector& ToInstigator)
 {
@@ -33,4 +35,44 @@ FName UCC_BlueprintLibrary::GetHitDirectionName(const EHitDirection HitDirection
 		case EHitDirection::Forward: return FName("Forward");
 		default: return("None");
 	}
+}
+
+FClosestActorWithTagResult UCC_BlueprintLibrary::FindClosestActorWithTag(const UObject* WorldContextObject,
+	const FVector& Origin, const FName& Tag)
+{
+	FClosestActorWithTagResult Result; 
+
+	if (!IsValid(WorldContextObject))
+	{
+		return Result; // Return early with the initial values
+	}
+	
+	TArray<AActor*> ActorsWithTag;
+	UGameplayStatics::GetAllActorsWithTag(WorldContextObject,Tag,ActorsWithTag);
+	
+	float ClosestDistance = TNumericLimits<float>::Max();
+	AActor* ClosestActor = nullptr;
+	
+	for ( AActor* Actor : ActorsWithTag)
+	{
+		if (!IsValid(Actor)) continue;
+		ACC_BaseCharacter* BaseCharacter = Cast <ACC_BaseCharacter>(Actor);
+		
+		if (!IsValid(BaseCharacter) || !BaseCharacter->IsAlive()) continue;
+		const float Distance = FVector::Dist(Origin, Actor->GetActorLocation());
+		
+		if (Distance < ClosestDistance)
+		{
+			ClosestDistance = Distance;
+			ClosestActor = Actor;
+		}
+	}
+	
+	if (ClosestActor)
+	{
+		Result.Actor = ClosestActor;
+		Result.Distance = ClosestDistance;
+	}
+	
+	return Result;
 }
