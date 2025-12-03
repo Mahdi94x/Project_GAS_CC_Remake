@@ -15,6 +15,7 @@ public:
 	ACC_EnemyCharacter();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual UAttributeSet* GetAttributeSet() const override;
+	virtual void HandleDeath() override;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crash|AI")
 	float AcceptanceRadius{500.f};

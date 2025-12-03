@@ -3,6 +3,7 @@
 #include "Characters/CC_EnemyCharacter.h"
 #include "AbilitySystem/CC_AbilitySystemComponent.h"
 #include "AbilitySystem/CC_AttributeSet.h"
+#include "AIController.h"
 
 
 ACC_EnemyCharacter::ACC_EnemyCharacter()
@@ -24,6 +25,17 @@ UAbilitySystemComponent* ACC_EnemyCharacter::GetAbilitySystemComponent() const
 UAttributeSet* ACC_EnemyCharacter::GetAttributeSet() const
 {
 	return this->AttributeSet;
+}
+
+void ACC_EnemyCharacter::HandleDeath()
+{
+	Super::HandleDeath();
+	
+	AAIController* AIController = GetController<AAIController>();
+	if (!IsValid(AIController)) return;
+	
+	AIController->StopMovement();
+	
 }
 
 void ACC_EnemyCharacter::BeginPlay()
