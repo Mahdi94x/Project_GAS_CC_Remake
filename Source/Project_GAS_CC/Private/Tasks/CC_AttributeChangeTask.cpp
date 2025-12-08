@@ -5,16 +5,20 @@
 
 UCC_AttributeChangeTask* UCC_AttributeChangeTask::ListenForAttributeChange( UAbilitySystemComponent* AbilitySystemComponent, FGameplayAttribute Attribute)
 {
+	// creating the node
 	UCC_AttributeChangeTask* WaitForAttributeChangeTask = NewObject<UCC_AttributeChangeTask>();
+	
 	// setting the TWeakObjectPtr
 	WaitForAttributeChangeTask->Asc = AbilitySystemComponent;
 	WaitForAttributeChangeTask->AttributeToListenFor = Attribute;
-	// Checking the validity of the Asc
+	
+	// Checking the validity of the AbilitySystemComponent
 	if (!IsValid(AbilitySystemComponent))
 	{
-		WaitForAttributeChangeTask->RemoveFromRoot();
+		WaitForAttributeChangeTask->RemoveFromRoot(); // remove if ASC is not valid
 		return nullptr;
 	}
+	
 	// binding the task to the delegate that the ASC fires when an attribute change
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Attribute)
 		.AddUObject(WaitForAttributeChangeTask,&UCC_AttributeChangeTask::AttributeChange);

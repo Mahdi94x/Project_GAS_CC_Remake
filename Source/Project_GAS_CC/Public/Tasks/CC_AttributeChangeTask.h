@@ -22,14 +22,15 @@ public:
 	UPROPERTY(BlueprintAssignable) // delegate instance
 	FOnAttributeChanged OnAttributeChanged;
 	
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true")) // implementation detail for the node
 	static UCC_AttributeChangeTask* ListenForAttributeChange(UAbilitySystemComponent* AbilitySystemComponent, FGameplayAttribute Attribute);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable) // clean up the task and avoid any memory leaks
 	void EndTask();
 	
+	/*Member Variables*/
 	TWeakObjectPtr<UAbilitySystemComponent> Asc;
 	FGameplayAttribute AttributeToListenFor;
 	
-	void AttributeChange(const FOnAttributeChangeData& Data) const; //Callback function
+	void AttributeChange(const FOnAttributeChangeData& Data) const; //Callback function responsible for broadcasting the new values
 };
