@@ -2,6 +2,11 @@
 
 namespace CCTags
 {
+	namespace SetByCaller
+	{
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(Projectile,"CCTags.SetByCaller.Projectile", "Tag for SetByCaller magnitude for projectiles");
+	}
+	
 	namespace CCAbilities
 	{
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(ActivateOnGiven,"CCTags.CCAbilities.ActivateOnGiven", "Tag for Abilities that should activate immediately on given");
@@ -17,6 +22,7 @@ namespace CCTags
 		{
 			UE_DEFINE_GAMEPLAY_TAG_COMMENT(Attack,"CCTags.CCAbilities.Enemy.Attack", "Enemy Attack Tag");
 		}
+		
 	}
 	
 	namespace Events
