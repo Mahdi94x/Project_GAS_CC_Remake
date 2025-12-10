@@ -33,6 +33,7 @@ namespace CCTags
 		{
 			UE_DEFINE_GAMEPLAY_TAG_COMMENT(HitReact,"CCTags.Events.Enemy.HitReact", "Tag for the enemy hit react event");
 			UE_DEFINE_GAMEPLAY_TAG_COMMENT(EndAttack,"CCTags.Events.Enemy.EndAttack", "Tag for an enemy ending an attack");
+			UE_DEFINE_GAMEPLAY_TAG_COMMENT(MeleeTraceHit,"CCTags.Events.Enemy.MeleeTraceHit", "Tag for the enemy melee trace hit");
 		}
 	}
 }
