@@ -1,7 +1,11 @@
 // Copyrights to Mahdi94x based on Course Make exciting multiplayer and single player games with the Gameplay Ability System in UE5 By Stephen Ulibarri
 
 #include "Utils/CC_BlueprintLibrary.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/CC_AttributeSet.h"
 #include "Characters/CC_BaseCharacter.h"
+#include "Characters/CC_PlayerCharacter.h"
+#include "GameplayTags/CCTags.h"
 #include "Kismet/GameplayStatics.h"
 
 EHitDirection UCC_BlueprintLibrary::GetHitDirection(const FVector& TargetForward, const FVector& ToInstigator)
@@ -75,4 +79,23 @@ FClosestActorWithTagResult UCC_BlueprintLibrary::FindClosestActorWithTag(const U
 	}
 	
 	return Result;
+}
+
+void UCC_BlueprintLibrary::SendDamageEventToPlayer(AActor* Target, const TSubclassOf<UGameplayEffect>& DamageEffect, const FGameplayEventData& Payload, const FGameplayTag& DataTag, float Damage)
+{
+	ACC_PlayerCharacter* PlayerCharacter = Cast<ACC_PlayerCharacter>(Target);
+	if (!IsValid(PlayerCharacter)) return;
+	if (!PlayerCharacter->IsAlive()) return;
+	
+	const UCC_AttributeSet* AttributeSet = Cast<UCC_AttributeSet>(PlayerCharacter->GetAttributeSet());
+	const bool bLethal = AttributeSet->GetHealth() - Damage <= 0.f;
+	const FGameplayTag EventTag = bLethal ? CCTags::Events::Player::Death : CCTags::Events::Player::HitReact;
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PlayerCharacter, EventTag,Payload);
+	
+	UAbilitySystemComponent* TargetAsc = PlayerCharacter->GetAbilitySystemComponent();
+	if (!IsValid(TargetAsc)) return;
+	const FGameplayEffectContextHandle ContextHandle = TargetAsc->MakeEffectContext();
+	const FGameplayEffectSpecHandle SpecHandle = TargetAsc->MakeOutgoingSpec(DamageEffect, 1.0f,ContextHandle);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DataTag, -Damage);
+	TargetAsc->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 }

@@ -1,12 +1,11 @@
 // Copyrights to Mahdi94x based on Course Make exciting multiplayer and single player games with the Gameplay Ability System in UE5 By Stephen Ulibarri
 
 #include "GameObjects/CC_Projectile.h"
-
-#include "AbilitySystemBlueprintLibrary.h"
 #include "Characters/CC_PlayerCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTags/CCTags.h"
+#include "Utils/CC_BlueprintLibrary.h"
 
 ACC_Projectile::ACC_Projectile()
 {
@@ -26,10 +25,10 @@ void ACC_Projectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	UAbilitySystemComponent* PlayerAbilitySystemComponent = PlayerCharacter->GetAbilitySystemComponent();
 	if (!IsValid(PlayerAbilitySystemComponent) || !HasAuthority()) return;
 	
-	const FGameplayEffectContextHandle ContextHandle = PlayerAbilitySystemComponent->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = PlayerAbilitySystemComponent->MakeOutgoingSpec(DamageGameplayEffect, 1.f, ContextHandle);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle,CCTags::SetByCaller::Projectile,ProjectileDamage);
-	PlayerAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	FGameplayEventData Payload;
+	Payload.Instigator = this->GetOwner();
+	Payload.Target = PlayerCharacter;
+	UCC_BlueprintLibrary::SendDamageEventToPlayer(PlayerCharacter,DamageGameplayEffect, Payload, CCTags::SetByCaller::Projectile,ProjectileDamage);
 	
 	SpawnImpactEffects();
 	Destroy();
