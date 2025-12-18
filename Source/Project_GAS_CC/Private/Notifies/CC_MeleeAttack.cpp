@@ -17,7 +17,7 @@ void UCC_MeleeAttack::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 	if (!IsValid(MeshComp)) return;
 	if (!IsValid(MeshComp->GetOwner())) return;
 	
-	TArray<FHitResult> Hits = PerformSphereTrace(MeshComp);
+	const TArray<FHitResult>& Hits = PerformSphereTrace(MeshComp);
 	
 	SendEventsToActors(MeshComp, Hits);
 	
@@ -71,6 +71,8 @@ TArray<FHitResult> UCC_MeleeAttack::PerformSphereTrace(USkeletalMeshComponent* M
 
 void UCC_MeleeAttack::SendEventsToActors(USkeletalMeshComponent* MeshComp, const TArray<FHitResult>& Hits) const
 {
+	if (!IsValid(MeshComp) || !IsValid(MeshComp->GetOwner())) return;
+
 	for (const FHitResult& Hit : Hits)
 	{
 		ACC_PlayerCharacter* PlayerCharacter = Cast<ACC_PlayerCharacter>(Hit.GetActor());

@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Characters/CC_BaseCharacter.h"
 #include "GameplayTags/CCTags.h"
 
 void ACC_PlayerController::SetupInputComponent()
@@ -37,18 +38,21 @@ void ACC_PlayerController::SetupInputComponent()
 
 void ACC_PlayerController::Jump()
 {
+	if (!IsBaseCharacterAlive()) return;
 	if (!IsValid(GetCharacter())) return;
 	GetCharacter()->Jump();
 }
 
 void ACC_PlayerController::StopJumping()
 {
+	if (!IsBaseCharacterAlive()) return;
 	if (!IsValid(GetCharacter())) return;
 	GetCharacter()->StopJumping();
 }
 
 void ACC_PlayerController::Move(const FInputActionValue& Value)
 {
+	if (!IsBaseCharacterAlive()) return;
 	if (!IsValid(GetPawn())) return;
 
 	const FVector2D MovementVector = Value.Get<FVector2D>();
@@ -62,6 +66,7 @@ void ACC_PlayerController::Move(const FInputActionValue& Value)
 
 void ACC_PlayerController::Look(const FInputActionValue& Value)
 {
+	if (!IsBaseCharacterAlive()) return;
 	if (!IsValid(GetPawn())) return;
 
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
@@ -87,9 +92,18 @@ void ACC_PlayerController::Tertiary()
 
 void ACC_PlayerController::ActivateAbility(const FGameplayTag& AbilityTag) const
 {
+	if (!IsBaseCharacterAlive()) return;
 	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 	if (!IsValid(ASC)) return;
 	
 	ASC->TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
 
+}
+
+bool ACC_PlayerController::IsBaseCharacterAlive() const
+{
+	ACC_BaseCharacter* BaseCharacter = Cast<ACC_BaseCharacter>(GetCharacter());
+	if (!IsValid(BaseCharacter)) return false;
+	return BaseCharacter->IsAlive();
+	
 }

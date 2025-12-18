@@ -4,10 +4,13 @@
 
 void UCC_HitReact::CacheHitDirectionVectors(AActor* Instigator)
 {
-	AvatarForward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
+	if (!IsInstantiated()) return;
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (!IsValid(AvatarActor) || !IsValid(Instigator)) return;
 	
-	const FVector AvatarLocation = GetAvatarActorFromActorInfo()->GetActorLocation();
+	AvatarForward = AvatarActor->GetActorForwardVector();
+	const FVector AvatarLocation = AvatarActor->GetActorLocation();
 	const FVector InstigatorLocation = Instigator->GetActorLocation();
-	
+
 	ToInstigator = (InstigatorLocation - AvatarLocation).GetSafeNormal();
 }

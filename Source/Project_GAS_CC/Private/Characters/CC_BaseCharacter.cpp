@@ -71,6 +71,8 @@ void ACC_BaseCharacter::HandleDeath()
 
 void ACC_BaseCharacter::ApplyingGameplayEffect(const TSubclassOf<UGameplayEffect>& GameplayEffect) const
 {
+	if (!IsValid(GetAbilitySystemComponent())) return;
+	
 	const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
 	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffect,1.f,ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());

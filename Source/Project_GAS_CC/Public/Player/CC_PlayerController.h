@@ -50,6 +50,7 @@ private:
 	void Secondary();
 	void Tertiary();
 	void ActivateAbility(const FGameplayTag& AbilityTag) const;
+	bool IsBaseCharacterAlive() const;
 	
 };
 
