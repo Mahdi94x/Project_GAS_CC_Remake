@@ -23,6 +23,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Crash|Projectile")
 	void SpawnImpactEffects();
+	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Crash|Projectile")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
