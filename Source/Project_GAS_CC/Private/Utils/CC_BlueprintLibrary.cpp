@@ -4,7 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/CC_AttributeSet.h"
 #include "Characters/CC_BaseCharacter.h"
-#include "Characters/CC_PlayerCharacter.h"
+#include "Engine/OverlapResult.h"
 #include "GameplayTags/CCTags.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -81,22 +81,90 @@ FClosestActorWithTagResult UCC_BlueprintLibrary::FindClosestActorWithTag(const U
 	return Result;
 }
 
-void UCC_BlueprintLibrary::SendDamageEventToPlayer(AActor* Target, const TSubclassOf<UGameplayEffect>& DamageEffect, FGameplayEventData& Payload, const FGameplayTag& DataTag, float Damage, UObject* OptionalParticleSystem)
+void UCC_BlueprintLibrary::SendDamageEventToPlayer(AActor* Target, const TSubclassOf<UGameplayEffect>& DamageEffect, FGameplayEventData& Payload, 
+	const FGameplayTag& DataTag, float Damage, UObject* OptionalParticleSystem)
 {
-	ACC_PlayerCharacter* PlayerCharacter = Cast<ACC_PlayerCharacter>(Target);
-	if (!IsValid(PlayerCharacter)) return;
-	if (!PlayerCharacter->IsAlive()) return;
+	ACC_BaseCharacter* BaseCharacter = Cast<ACC_BaseCharacter>(Target);
+	if (!IsValid(BaseCharacter)) return;
+	if (!BaseCharacter->IsAlive()) return;
 	
-	const UCC_AttributeSet* AttributeSet = Cast<UCC_AttributeSet>(PlayerCharacter->GetAttributeSet());
+	const UCC_AttributeSet* AttributeSet = Cast<UCC_AttributeSet>(BaseCharacter->GetAttributeSet());
 	const bool bLethal = AttributeSet->GetHealth() - Damage <= 0.f;
 	const FGameplayTag EventTag = bLethal ? CCTags::Events::Player::Death : CCTags::Events::Player::HitReact;
 	Payload.OptionalObject = OptionalParticleSystem;
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(PlayerCharacter, EventTag,Payload);
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(BaseCharacter, EventTag,Payload);
 	
-	UAbilitySystemComponent* TargetAsc = PlayerCharacter->GetAbilitySystemComponent();
+	UAbilitySystemComponent* TargetAsc = BaseCharacter->GetAbilitySystemComponent();
 	if (!IsValid(TargetAsc)) return;
 	const FGameplayEffectContextHandle ContextHandle = TargetAsc->MakeEffectContext();
 	const FGameplayEffectSpecHandle SpecHandle = TargetAsc->MakeOutgoingSpec(DamageEffect, 1.0f,ContextHandle);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DataTag, -Damage);
 	TargetAsc->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+}
+
+TArray<AActor*> UCC_BlueprintLibrary::HitBoxOverlapTest(AActor* AvatarActor , float HitBoxRadius, float HitBoxForwardOffset, float HitBoxElevationOffset, bool bDrawDebugs)
+{
+	if (!IsValid(AvatarActor)) return TArray<AActor*>();
+	
+	// Ensure that the overlap test ignores the avatar actor
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(AvatarActor);
+	
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECC_Pawn, ECR_Block);
+	
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(HitBoxRadius);
+	
+	const FVector Forward = AvatarActor->GetActorForwardVector() * HitBoxForwardOffset;
+	const FVector HitboxLocation = AvatarActor->GetActorLocation() 
+					+ Forward + FVector(0.f,0.f,HitBoxElevationOffset);
+	
+	UWorld* World = GEngine->GetWorldFromContextObject(AvatarActor, EGetWorldErrorMode::LogAndReturnNull);
+	if (!IsValid(World)) return TArray<AActor*>();
+	
+	World->OverlapMultiByChannel(
+		OverlapResults,
+		HitboxLocation,
+		FQuat::Identity,
+		ECC_Visibility,
+		Sphere,
+		QueryParams,
+		ResponseParams
+		);
+	
+	TArray<AActor*> ActorsHit;
+	for (const FOverlapResult& Result : OverlapResults)
+	{
+		ACC_BaseCharacter* BaseCharacter = Cast<ACC_BaseCharacter>(Result.GetActor());
+		if (!IsValid(BaseCharacter)) continue;
+		if (!BaseCharacter->IsAlive()) continue;
+		
+		ActorsHit.AddUnique(BaseCharacter);
+	}
+	
+	if (bDrawDebugs)
+	{
+		DrawHitBoxOverlapDebugs(AvatarActor, OverlapResults, HitboxLocation, HitBoxRadius);
+	}
+	return ActorsHit;
+}
+
+void UCC_BlueprintLibrary::DrawHitBoxOverlapDebugs(UObject* WorldContextObject, const TArray<FOverlapResult>& OverlapResults , const FVector& HitBoxLocation, float HitBoxRadius)
+{
+	const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!IsValid(World)) return;
+	
+	DrawDebugSphere(World, HitBoxLocation, HitBoxRadius, 24, FColor::Red, false, 5.f );
+		
+	for (const FOverlapResult& Result : OverlapResults)
+	{
+		if (IsValid(Result.GetActor()))
+		{
+			FVector DebugLocation = Result.GetActor()->GetActorLocation();
+			DebugLocation.Z+=100.f;
+			DrawDebugSphere(World, DebugLocation, 30, 12, FColor::Green, false, 5.f );
+		}
+	}
 }
