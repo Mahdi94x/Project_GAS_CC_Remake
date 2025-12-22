@@ -164,7 +164,55 @@ void UCC_BlueprintLibrary::DrawHitBoxOverlapDebugs(UObject* WorldContextObject, 
 		{
 			FVector DebugLocation = Result.GetActor()->GetActorLocation();
 			DebugLocation.Z+=100.f;
-			DrawDebugSphere(World, DebugLocation, 30, 12, FColor::Green, false, 5.f );
+			DrawDebugSphere(World, DebugLocation, 30, 24, FColor::Green, false, 5.f );
 		}
 	}
+}
+
+TArray<AActor*> UCC_BlueprintLibrary::ApplyKnockback(AActor* AvatarActor, const TArray<AActor*>& HitActors, float InnerRadius,
+	float OuterRadius, float LaunchForceMagnitude, float RotationAngle, bool bDrawDebugs)
+{
+	for (AActor* HitActor : HitActors)
+	{
+		ACharacter* HitCharacter = Cast<ACharacter>(HitActor);
+		if (!IsValid(HitCharacter) || !IsValid(AvatarActor)) return TArray<AActor*>();
+		
+		const FVector HitCharacterLocation = HitCharacter->GetActorLocation();
+		const FVector AvatarActorLocation = AvatarActor->GetActorLocation();
+		
+		const FVector ToHitCharacter = HitCharacterLocation - AvatarActorLocation;
+		const float Distance = FVector::Dist(AvatarActorLocation, HitCharacterLocation);
+		
+		float LaunchForce;
+		
+		if (Distance > OuterRadius) continue;
+		
+		if (Distance <= InnerRadius)
+		{
+			LaunchForce = LaunchForceMagnitude;
+		}
+		else
+		{
+			const FVector2D FalloffRange(InnerRadius,OuterRadius); // input range
+			const FVector2D LaunchForceRange(LaunchForceMagnitude, 0.f); // output range
+			LaunchForce = FMath::GetMappedRangeValueClamped(FalloffRange, LaunchForceRange, Distance);
+		}
+		
+		if (bDrawDebugs) GEngine->AddOnScreenDebugMessage(-1,3.f,FColor::Red,FString::Printf(TEXT("LaunchForce: %f"), LaunchForce));
+		
+		/* Calculating Launch Velocity*/
+		FVector KnockbackForce = ToHitCharacter.GetSafeNormal();
+		KnockbackForce.Z = 0.f; /*Flatten the vector*/
+		const FVector Right = KnockbackForce.RotateAngleAxis(90.f,FVector::UpVector); /*Vector perpendicular to the knockbackForce*/
+		KnockbackForce = KnockbackForce.RotateAngleAxis(-RotationAngle,Right) * LaunchForce; /*Rotating KnockbackForce around the perpendicular vector in the up direction */
+		
+		if (bDrawDebugs)
+		{
+			const UWorld* World = GEngine->GetWorldFromContextObject(AvatarActor, EGetWorldErrorMode::LogAndReturnNull);
+			DrawDebugDirectionalArrow(World, HitCharacterLocation, HitCharacterLocation+KnockbackForce, 100.f,FColor::Green, false, 3.f, 0, 1.f);
+		}
+		
+		HitCharacter->LaunchCharacter(KnockbackForce, true, true);
+	}
+	return HitActors;
 }
