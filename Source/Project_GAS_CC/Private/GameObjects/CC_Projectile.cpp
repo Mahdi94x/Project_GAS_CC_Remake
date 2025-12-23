@@ -28,7 +28,7 @@ void ACC_Projectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	FGameplayEventData Payload;
 	Payload.Instigator = this->GetOwner();
 	Payload.Target = PlayerCharacter;
-	UCC_BlueprintLibrary::SendDamageEventToPlayer(PlayerCharacter,DamageGameplayEffect, Payload, CCTags::SetByCaller::Projectile,ProjectileDamage);
+	UCC_BlueprintLibrary::SendDamageEventToPlayer(PlayerCharacter,DamageGameplayEffect, Payload, CCTags::SetByCaller::Projectile,ProjectileDamage,CCTags::None);
 	
 	SpawnImpactEffects();
 	Destroy();

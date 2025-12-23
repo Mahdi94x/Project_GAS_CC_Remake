@@ -31,8 +31,10 @@ TArray<FHitResult> UCC_MeleeAttack::PerformSphereTrace(USkeletalMeshComponent* M
 	const FVector Start = SocketTransform.GetLocation();
 	const FVector ExtendedSocketDirection = UKismetMathLibrary::GetForwardVector(SocketTransform.GetRotation().Rotator()) * SocketExtensionOffset;
 	const FVector End = Start - ExtendedSocketDirection;
+	
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(MeshComp->GetOwner());
+	
 	FCollisionResponseParams ResponseParams;
 	ResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore);
 	ResponseParams.CollisionResponse.SetResponse(ECC_Pawn,ECR_Block);
@@ -78,6 +80,7 @@ void UCC_MeleeAttack::SendEventsToActors(USkeletalMeshComponent* MeshComp, const
 		ACC_PlayerCharacter* PlayerCharacter = Cast<ACC_PlayerCharacter>(Hit.GetActor());
 		if (!IsValid(PlayerCharacter)) continue;
 		if (!PlayerCharacter->IsAlive()) continue;
+		
 		UAbilitySystemComponent* PlayerASC = PlayerCharacter->GetAbilitySystemComponent();
 		if (!IsValid(PlayerASC)) continue;
 		
