@@ -16,6 +16,8 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual UAttributeSet* GetAttributeSet() const override;
 	virtual void HandleDeath() override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	void StopMovementUntilLanded();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crash|AI")
 	float AcceptanceRadius{500.f};
@@ -29,10 +31,18 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	float GetTimelineLength();
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
+	bool bIsBeingLaunched = false;
+	
 protected:
+	
 	virtual void BeginPlay() override;
 	
 private:
+	
+	UFUNCTION()
+	void EnableMovementOnLaned(const FHitResult& HitResult);
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	

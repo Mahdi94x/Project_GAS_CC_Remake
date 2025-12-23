@@ -4,6 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/CC_AttributeSet.h"
 #include "Characters/CC_BaseCharacter.h"
+#include "Characters/CC_EnemyCharacter.h"
 #include "Engine/OverlapResult.h"
 #include "GameplayTags/CCTags.h"
 #include "Kismet/GameplayStatics.h"
@@ -213,6 +214,11 @@ TArray<AActor*> UCC_BlueprintLibrary::ApplyKnockback(AActor* AvatarActor, const 
 		}
 		
 		HitCharacter->LaunchCharacter(KnockbackForce, true, true);
+		
+		if (ACC_EnemyCharacter* EnemyCharacter = Cast<ACC_EnemyCharacter>(HitCharacter); IsValid(EnemyCharacter))
+		{
+			EnemyCharacter->StopMovementUntilLanded();
+		}
 	}
 	return HitActors;
 }

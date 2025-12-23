@@ -38,7 +38,10 @@ void UCC_SearchForTarget::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 
 void UCC_SearchForTarget::EndAttackEventReceived(FGameplayEventData Payload)
 {
-	StartSearch();
+	if (OwningEnemy.IsValid() && !OwningEnemy->bIsBeingLaunched)
+	{
+		StartSearch();
+	}
 }
 
 void UCC_SearchForTarget::StartSearch()
