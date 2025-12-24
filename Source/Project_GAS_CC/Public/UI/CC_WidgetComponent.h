@@ -17,9 +17,6 @@ class PROJECT_GAS_CC_API UCC_WidgetComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
 
-public:
-
-
 protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere, Category= "Crash|UI")

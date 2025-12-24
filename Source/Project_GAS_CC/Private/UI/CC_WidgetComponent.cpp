@@ -74,13 +74,14 @@ void UCC_WidgetComponent::BindWidgetToAttributeChanged(UWidget* WidgetObject,
 		
 	if (!IsValid(AttributeWidget)) return; // Only care about CC_Attribute_Widget
 	if (!AttributeWidget->MatchesAttributes(Pair)) return; // Only subscribe for matching attributes this->TMap vs TTuple
-		
-	AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get()); // Setting Initial Values
+	AttributeWidget->AvatarActor = 	CrashCharacter;
+	
+	AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get(), 0.f); // Setting Initial Values
 	
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Key).AddLambda
 	([this,AttributeWidget, &Pair](const FOnAttributeChangeData& AttributeChangeData)
 	{
-		AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get()); // Updating during gameplay
+		AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get(), AttributeChangeData.OldValue); // Update during gameplay
 	});
 }
 
