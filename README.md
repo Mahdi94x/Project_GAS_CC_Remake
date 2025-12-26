@@ -2,6 +2,8 @@
 
 Developed with Unreal Engine 5.7.1  
 
+Part 1 https://github.com/Mahdi94x/Project_GAS_CC  
+
 Based on the Udemy course Make exciting multiplayer and single player games with the Gameplay Ability System in UE5 By Stephen Ulibarri  
 
 Project GAS_CC is a third-person action combat prototype built in Unreal Engine using the Gameplay Ability System (GAS).  
